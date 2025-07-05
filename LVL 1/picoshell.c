@@ -57,8 +57,15 @@ int picoshell(char **cmds[])
 
         pid = fork();
         if (pid < 0)
+        {
+            if (fd[0] != -1)
+                close(fd[0]);
+            if (fd[1] != -1)
+                close(fd[1]);
+            if (in_fd != 0)
+                close(in_fd);
             return 1;
-
+        }
         if (pid == 0) // Enfant
         {
             if (in_fd != 0)
