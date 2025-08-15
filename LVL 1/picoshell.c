@@ -30,7 +30,7 @@ squblblb/
 // Here is a first version of the code THAT DOES NOT HANDLE errors
 // so you can focus on the logic. The sentinel value -1 is used to detect
 // when we are in the case of the first or last command
-int	picoshell(char **cmds[])
+int	no_error_picoshell(char **cmds[])
 {
     pid_t pid;
     int pipefd[2];
@@ -166,4 +166,93 @@ int	picoshell(char **cmds[])
             ret = 1;
     }
     return ret;
+}
+
+#include <stdio.h>
+#include <assert.h>
+
+int main(void)
+{
+    int ret;
+
+    // --- Test 1: ls | grep pico ---
+    char **pipeline1[] = {
+        (char*[]){ "/bin/ls", NULL },
+        (char*[]){ "/usr/bin/grep", "pico", NULL },
+        NULL
+    };
+
+    printf("Test 1: /bin/ls | /usr/bin/grep pico\n");
+    assert(picoshell(pipeline1) == 0);
+    printf("\n");
+
+    // --- Test 2: echo 'squalala' | cat | sed 's/a/b/g' ---
+    char **pipeline2[] = {
+        (char*[]){ "/bin/echo", "squalala", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/sed", "s/a/b/g", NULL },
+        NULL
+    };
+
+    printf("Test 2: echo 'squalala' | cat | sed 's/a/b/g'\n");
+    assert(picoshell(pipeline2) == 0);
+    printf("\n");
+
+    // --- Test 3: Nonexistent command to simulate exec error ---
+    char **pipeline3[] = {
+        (char*[]){ "/bin/false_command", NULL },
+        NULL
+    };
+
+    printf("Test 3: nonexistent command\n");
+    assert(picoshell(pipeline3) == 1);
+    printf("\n");
+
+    // --- Test 4: lots of pipes ---
+    char **pipeline4[] = {
+        (char*[]){ "/bin/echo", "Ok", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        (char*[]){ "/bin/cat", NULL },
+        NULL
+    };
+
+    printf("Test 4: lots of pipes (don't forget to execute \"ulimit -n 30\")\n");
+    assert(picoshell(pipeline4) == 0);
+    printf("\n");
+
+
+    return 0;
 }
